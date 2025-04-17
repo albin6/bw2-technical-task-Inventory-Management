@@ -10,12 +10,16 @@ export const Messages = {
     PASSWORD_UPDATE_SUCCESS: "Password reset successful",
     USER_NOT_FOUND: "User not found",
     USER_ID_NOT_PROVIDED: "User ID not provided",
+    EMAIL_REQUIRED: "Email address is required",
   },
   common: {
     UNAUTHORIZED: "Unauthorized access",
     SERVER_ERROR: "Internal server error",
     VALIDATION_ERROR: "Validation failed",
     REQUIRED_DATA: "Required data not provided",
+    ITEM_NOT_FOUND: "Item not found",
+    NO_ENOUGH_QTY: "No enough quantity available for the item",
+    SALE_NOT_FOUND: "Sale not found",
   },
   token: {
     TOKEN_MISSING: "Access token missing",
