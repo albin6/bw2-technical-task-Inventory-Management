@@ -11,6 +11,7 @@ import salesRouter from "./routes/sale.route";
 import customerRouter from "./routes/customer.route";
 import inventoryRouter from "./routes/inventory.route";
 import reportRouter from "./routes/report.route";
+import { connectDB } from "./config/db";
 
 dotenv.config();
 
@@ -41,5 +42,6 @@ app.use("/api/report", reportRouter);
 
 app.use(errorHandler);
 
+connectDB();
 const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
