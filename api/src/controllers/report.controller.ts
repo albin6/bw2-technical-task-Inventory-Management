@@ -5,10 +5,9 @@ import InventoryItem from "../models/inventory.model";
 import Customer from "../models/customer.model";
 import path from "path";
 import fs from "fs";
-import stream from "stream";
 import ExcelJS from "exceljs";
 import PDFDocument from "pdfkit";
-import nodemailer from "nodemailer";
+import sendEmail from "../utils/email-sender";
 
 // Helper function to format date range for reports
 const getDateRangeFilter = (req: Request) => {
@@ -735,22 +734,22 @@ export const emailReport = async (req: Request, res: Response) => {
   }
 
   // Get email configuration from environment variables
-  const emailConfig = {
-    host: process.env.EMAIL_HOST || "",
-    port: parseInt(process.env.EMAIL_PORT || "587"),
-    user: process.env.EMAIL_USER || "",
-    pass: process.env.EMAIL_PASS || "",
-    from: process.env.EMAIL_FROM || "noreply@example.com",
-  };
+  // const emailConfig = {
+  //   host: process.env.EMAIL_HOST || "",
+  //   port: parseInt(process.env.EMAIL_PORT || "587"),
+  //   user: process.env.EMAIL_USER || "",
+  //   pass: process.env.EMAIL_PASS || "",
+  //   from: process.env.EMAIL_FROM || "noreply@example.com",
+  // };
 
-  // Check if email configuration is set
-  if (!emailConfig.host || !emailConfig.user || !emailConfig.pass) {
-    res.status(500).json({
-      success: false,
-      message: "Email service is not configured",
-    });
-    return;
-  }
+  // // Check if email configuration is set
+  // if (!emailConfig.host || !emailConfig.user || !emailConfig.pass) {
+  //   res.status(500).json({
+  //     success: false,
+  //     message: "Email service is not configured",
+  //   });
+  //   return;
+  // }
 
   // Create directory if it doesn't exist
   const dir = path.join(__dirname, "../exports");
@@ -1082,26 +1081,38 @@ export const emailReport = async (req: Request, res: Response) => {
   }
 
   // Create email transporter
-  const transporter = nodemailer.createTransport({
-    host: emailConfig.host,
-    port: emailConfig.port,
-    secure: emailConfig.port === 465, // true for 465, false for other ports
-    auth: {
-      user: emailConfig.user,
-      pass: emailConfig.pass,
-    },
-  });
+  // const transporter = nodemailer.createTransport({
+  //   host: emailConfig.host,
+  //   port: emailConfig.port,
+  //   secure: emailConfig.port === 465, // true for 465, false for other ports
+  //   auth: {
+  //     user: emailConfig.user,
+  //     pass: emailConfig.pass,
+  //   },
+  // });
 
-  // Send email with attachment
-  const info = await transporter.sendMail({
-    from: emailConfig.from,
+  // // Send email with attachment
+  // const info = await transporter.sendMail({
+  //   from: emailConfig.from,
+  //   to: email,
+  //   subject: subject,
+  //   text: text,
+  //   attachments: [
+  //     {
+  //       filename: fileName,
+  //       path: filePath,
+  //     },
+  //   ],
+  // });
+
+  const info = await sendEmail({
     to: email,
     subject: subject,
     text: text,
     attachments: [
       {
         filename: fileName,
-        path: filePath,
+        content: Buffer.from(filePath),
       },
     ],
   });

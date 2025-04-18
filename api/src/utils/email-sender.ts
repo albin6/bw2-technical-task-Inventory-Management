@@ -28,18 +28,16 @@ export async function sendEmail(
 ): Promise<nodemailer.SentMessageInfo> {
   // Create a transporter using SMTP configuration
   const transporter: Transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: process.env.SMTP_SECURE === "true", // true for 465, false for other ports
+    service: "gmail",
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
   // Email message configuration
   const mailOptions: SendMailOptions = {
-    from: process.env.EMAIL_FROM || "noreply@yourdomain.com",
+    from: process.env.EMAIL_USER || "noreply@yourdomain.com",
     to: options.to,
     subject: options.subject,
     text: options.text,

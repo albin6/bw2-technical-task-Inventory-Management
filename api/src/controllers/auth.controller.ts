@@ -174,7 +174,7 @@ export const refreshToken = async (req: Request, res: Response) => {
 export const getMe = async (req: Request, res: Response) => {
   const userId = (req as CustomRequest).user.id;
 
-  const user = await User.findById(userId);
+  const user = await User.findById(userId, { password: 0 });
 
   if (!user) {
     throw new AppError(Messages.auth.USER_NOT_FOUND, StatusCode.NOT_FOUND);

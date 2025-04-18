@@ -30,15 +30,15 @@ app.use(cookieParser());
 
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
-app.use("/", (req: Request, res: Response) => {
-  res.json("Application is running!!!");
-});
-
 app.use("/api/auth", authRouter);
 app.use("/api/inventory", inventoryRouter);
 app.use("/api/sales", salesRouter);
 app.use("/api/customer", customerRouter);
 app.use("/api/report", reportRouter);
+
+app.use("/", (req: Request, res: Response) => {
+  res.json("Application is running!!!");
+});
 
 app.use(errorHandler);
 
