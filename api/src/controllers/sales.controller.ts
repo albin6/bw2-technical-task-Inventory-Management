@@ -54,10 +54,11 @@ export const getSale = async (req: Request, res: Response) => {
     .populate("items.item", "name");
 
   if (!sale) {
-    return res.status(404).json({
+    res.status(404).json({
       success: false,
       message: "Sale not found",
     });
+    return;
   }
 
   res.status(200).json({
@@ -175,10 +176,11 @@ export const updateSale = async (req: Request, res: Response) => {
   let sale = await Sale.findById(req.params.id);
 
   if (!sale) {
-    return res.status(StatusCode.NOT_FOUND).json({
+    res.status(StatusCode.NOT_FOUND).json({
       success: false,
       message: Messages.common.SALE_NOT_FOUND,
     });
+    return;
   }
 
   // Only allow updating certain fields (not items or quantities to maintain inventory integrity)
@@ -208,10 +210,11 @@ export const deleteSale = async (req: Request, res: Response) => {
     const sale = await Sale.findById(req.params.id);
 
     if (!sale) {
-      return res.status(StatusCode.NOT_FOUND).json({
+      res.status(StatusCode.NOT_FOUND).json({
         success: false,
         message: Messages.common.SALE_NOT_FOUND,
       });
+      return;
     }
 
     // Return items to inventory

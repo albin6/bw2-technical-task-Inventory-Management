@@ -76,10 +76,11 @@ export const updateInventoryItem = async (req: Request, res: Response) => {
   let item = await Inventory.findById(req.params.id);
 
   if (!item) {
-    return res.status(StatusCode.NOT_FOUND).json({
+    res.status(StatusCode.NOT_FOUND).json({
       success: false,
       message: Messages.common.ITEM_NOT_FOUND,
     });
+    return;
   }
 
   item = await Inventory.findByIdAndUpdate(
@@ -107,10 +108,11 @@ export const deleteInventoryItem = async (req: Request, res: Response) => {
   const item = await Inventory.findById(req.params.id);
 
   if (!item) {
-    return res.status(StatusCode.NOT_FOUND).json({
+    res.status(StatusCode.NOT_FOUND).json({
       success: false,
       message: Messages.common.ITEM_NOT_FOUND,
     });
+    return;
   }
 
   await item.deleteOne();
@@ -128,10 +130,11 @@ export const searchInventoryItems = async (req: Request, res: Response) => {
   const { query } = req.query;
 
   if (!query) {
-    return res.status(StatusCode.BAD_REQUEST).json({
+    res.status(StatusCode.BAD_REQUEST).json({
       success: false,
       message: Messages.common.REQUIRED_DATA,
     });
+    return;
   }
 
   const items = await Inventory.find({

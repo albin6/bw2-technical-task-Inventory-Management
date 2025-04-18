@@ -12,6 +12,14 @@ export const Messages = {
     USER_ID_NOT_PROVIDED: "User ID not provided",
     EMAIL_REQUIRED: "Email address is required",
   },
+  customer: {
+    CREATED_SUCCESS: "Customer created successfully",
+    UPDATED_SUCCESS: "Customer updated successfully",
+    DELETED_SUCCESS: "Customer deleted successfully",
+    LACK_OF_DATA: "Please provide name, address, and mobile number",
+    INVALID_CUS_ID: "Invalid customer ID",
+    CUSTOMER_NOT_FOUND: "Customer not found",
+  },
   common: {
     UNAUTHORIZED: "Unauthorized access",
     SERVER_ERROR: "Internal server error",
