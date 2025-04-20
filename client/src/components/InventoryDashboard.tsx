@@ -4,7 +4,10 @@ import {
   addInventoryItem,
   getAllInventoryItems,
 } from "@/api/inventory.service";
-import { getAllCustomers } from "@/api/customer.service";
+import { addNewCustomer, getAllCustomers } from "@/api/customer.service";
+import { useNavigate } from "react-router-dom";
+import { Avatar, Button, Dropdown, MenuProps } from "antd";
+import { DownOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 
 // Define types based on the API response structure
 export type InventoryItem = {
@@ -26,7 +29,7 @@ export type Customer = {
   address: string;
   mobile: string;
   email: string;
-  createdBy: string;
+  createdBy?: string;
   createdAt?: string;
   updatedAt?: string;
   __v?: number;
@@ -57,6 +60,7 @@ const initialInventory: InventoryItem[] = [];
 const initialCustomers: Customer[] = [];
 
 export default function InventoryDashboard() {
+  const navigate = useNavigate();
   // State for inventory items
   const [inventory, setInventory] = useState<InventoryItem[]>(initialInventory);
   const [filteredInventory, setFilteredInventory] =
@@ -95,6 +99,10 @@ export default function InventoryDashboard() {
 
   // Simulating API fetch (replace with actual API calls)
   useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (!user) {
+      navigate("/");
+    }
     // Fetch inventory data
     // This would be replaced with your actual API call
     const fetchInventory = async () => {
@@ -204,7 +212,7 @@ export default function InventoryDashboard() {
     setCustomerForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCustomerSubmit = () => {
+  const handleCustomerSubmit = async () => {
     if (editingCustomer) {
       // Update existing customer - in a real app, this would call an API
       setCustomers((prev) =>
@@ -224,7 +232,12 @@ export default function InventoryDashboard() {
         updatedAt: new Date().toISOString(),
         __v: 0,
       } as Customer;
-      setCustomers((prev) => [...prev, newCustomer]);
+
+      try {
+        const response = await addNewCustomer(customerForm as Customer);
+        console.log(response);
+        setCustomers((prev) => [...prev, newCustomer]);
+      } catch (error) {}
     }
 
     // Reset form and close modal
@@ -270,15 +283,6 @@ export default function InventoryDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Inventory Management Dashboard
-          </h1>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {/* Navigation Tabs */}

@@ -7,7 +7,13 @@ export const login = async (data: LoginFormValues) => {
   return response.data;
 };
 
-export const signup = async (data: SignupFormValues) => {
+export const signup = async (
+  data: Omit<SignupFormValues, "confirmPassword">
+) => {
   const response = await axiosInstance.post("/auth/register", data);
   return response.data;
+};
+
+export const logout = () => {
+  localStorage.removeItem("user");
 };

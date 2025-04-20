@@ -30,7 +30,7 @@ export const register = async (req: Request, res: Response) => {
     username,
     email,
     password,
-    role: role || "staff",
+    role: role || "admin",
   });
 
   const payload: CustomJwtPayload = {

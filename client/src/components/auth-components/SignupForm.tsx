@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Form, Input, Button, Card, Typography } from "antd";
-import { LockOutlined, MailOutlined, PhoneOutlined } from "@ant-design/icons";
+import { LockOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { signup } from "@/api/auth.service";
 import { toast } from "sonner";
@@ -8,8 +8,8 @@ import { toast } from "sonner";
 const { Title, Text } = Typography;
 
 export interface SignupFormValues {
+  username: string;
   email: string;
-  phone: string;
   password: string;
   confirmPassword: string;
 }
@@ -24,23 +24,36 @@ export default function SignupForm() {
     if (user) {
       navigate("/dashboard");
     }
-  }, []);
+  }, [navigate]);
 
   const onFinish = async (values: SignupFormValues) => {
     try {
       setLoading(true);
-      // Here you would implement your actual signup logic
-      console.log("Signup form values:", values);
+      // Extract the values needed for the API call
+      const { username, email, password, confirmPassword } = values;
 
-      // Simulate API call
-      const data = await signup(values);
+      // Validate passwords match before sending to API
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
 
+      // Call the backend API with the required fields
+      const data = await signup({
+        username,
+        email,
+        password,
+      });
+
+      // Store user data in local storage
       localStorage.setItem("user", JSON.stringify(data.user));
 
       toast.success("Account created successfully!");
-      navigate("/dashboard"); // Redirect to login after signup
-    } catch (error) {
-      toast.error("Signup failed. Please try again.");
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message || "Signup failed. Please try again."
+      );
       console.error("Signup error:", error);
     } finally {
       setLoading(false);
@@ -64,6 +77,21 @@ export default function SignupForm() {
           requiredMark={false}
         >
           <Form.Item
+            name="username"
+            label="Username"
+            rules={[
+              { required: true, message: "Please enter a username" },
+              { min: 3, message: "Username must be at least 3 characters" },
+            ]}
+          >
+            <Input
+              prefix={<UserOutlined className="text-gray-400" />}
+              placeholder="Username"
+              size="large"
+            />
+          </Form.Item>
+
+          <Form.Item
             name="email"
             label="Email"
             rules={[
@@ -74,24 +102,6 @@ export default function SignupForm() {
             <Input
               prefix={<MailOutlined className="text-gray-400" />}
               placeholder="Email"
-              size="large"
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="phone"
-            label="Phone Number"
-            rules={[
-              { required: true, message: "Please enter your phone number" },
-              {
-                pattern: /^\+?[0-9]{10,15}$/,
-                message: "Please enter a valid phone number",
-              },
-            ]}
-          >
-            <Input
-              prefix={<PhoneOutlined className="text-gray-400" />}
-              placeholder="Phone Number"
               size="large"
             />
           </Form.Item>
