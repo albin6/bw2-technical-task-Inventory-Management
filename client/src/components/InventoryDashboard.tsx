@@ -6,8 +6,6 @@ import {
 } from "@/api/inventory.service";
 import { addNewCustomer, getAllCustomers } from "@/api/customer.service";
 import { useNavigate } from "react-router-dom";
-import { Avatar, Button, Dropdown, MenuProps } from "antd";
-import { DownOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 
 // Define types based on the API response structure
 export type InventoryItem = {
