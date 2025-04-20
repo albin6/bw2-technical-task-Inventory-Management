@@ -1,61 +1,60 @@
 import { useState, useEffect } from "react";
 import { Search, Plus, Edit, Delete, UserPlus2 } from "lucide-react";
+import {
+  addInventoryItem,
+  getAllInventoryItems,
+} from "@/api/inventory.service";
+import { getAllCustomers } from "@/api/customer.service";
 
-// Define types
-type InventoryItem = {
-  id: string;
+// Define types based on the API response structure
+export type InventoryItem = {
+  _id: string;
   name: string;
   description: string;
   quantity: number;
   price: number;
+  category: string;
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
 };
 
-type Customer = {
-  id: string;
+export type Customer = {
+  _id: string;
   name: string;
   address: string;
-  mobileNumber: string;
+  mobile: string;
+  email: string;
+  createdBy: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
 };
 
-// Mock data for initial state
-const initialInventory: InventoryItem[] = [
-  {
-    id: "1",
-    name: "Laptop",
-    description: "High-end gaming laptop",
-    quantity: 10,
-    price: 1200,
-  },
-  {
-    id: "2",
-    name: "Smartphone",
-    description: "Latest model",
-    quantity: 25,
-    price: 800,
-  },
-  {
-    id: "3",
-    name: "Monitor",
-    description: "27-inch 4K display",
-    quantity: 15,
-    price: 350,
-  },
-];
+// API response types
+type InventoryResponse = {
+  success: boolean;
+  count: number;
+  totalPages: number;
+  currentPage: number;
+  data: InventoryItem[];
+};
 
-const initialCustomers: Customer[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    address: "123 Main St, City",
-    mobileNumber: "123-456-7890",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    address: "456 Oak Ave, Town",
-    mobileNumber: "987-654-3210",
-  },
-];
+type CustomerResponse = {
+  success: boolean;
+  data: Customer[];
+  pagination: {
+    total: number;
+    page: number;
+    pages: number;
+    limit: number;
+  };
+};
+
+// Mock data for initial state - will be replaced by API data
+const initialInventory: InventoryItem[] = [];
+const initialCustomers: Customer[] = [];
 
 export default function InventoryDashboard() {
   // State for inventory items
@@ -79,18 +78,56 @@ export default function InventoryDashboard() {
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
 
   // Form states
-  const [itemForm, setItemForm] = useState<Omit<InventoryItem, "id">>({
+  const [itemForm, setItemForm] = useState<Partial<InventoryItem>>({
     name: "",
     description: "",
     quantity: 0,
     price: 0,
+    category: "",
   });
 
-  const [customerForm, setCustomerForm] = useState<Omit<Customer, "id">>({
+  const [customerForm, setCustomerForm] = useState<Partial<Customer>>({
     name: "",
     address: "",
-    mobileNumber: "",
+    mobile: "",
+    email: "",
   });
+
+  // Simulating API fetch (replace with actual API calls)
+  useEffect(() => {
+    // Fetch inventory data
+    // This would be replaced with your actual API call
+    const fetchInventory = async () => {
+      try {
+        // Mock API response - replace with actual API call
+        const response: InventoryResponse = await getAllInventoryItems();
+
+        if (response.success) {
+          setInventory(response.data);
+          setFilteredInventory(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching inventory:", error);
+      }
+    };
+
+    // Fetch customer data
+    const fetchCustomers = async () => {
+      try {
+        // Mock API response - replace with actual API call
+        const response: CustomerResponse = await getAllCustomers();
+
+        if (response.success) {
+          setCustomers(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+      }
+    };
+
+    fetchInventory();
+    fetchCustomers();
+  }, []);
 
   // Filter inventory items based on search query
   useEffect(() => {
@@ -101,7 +138,7 @@ export default function InventoryDashboard() {
       const filtered = inventory.filter(
         (item) =>
           item.name.toLowerCase().includes(query) ||
-          item.description.toLowerCase().includes(query)
+          (item.description && item.description.toLowerCase().includes(query))
       );
       setFilteredInventory(filtered);
     }
@@ -109,7 +146,9 @@ export default function InventoryDashboard() {
 
   // Item form handlers
   const handleItemFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setItemForm((prev) => ({
@@ -119,29 +158,42 @@ export default function InventoryDashboard() {
     }));
   };
 
-  const handleItemSubmit = () => {
+  const handleItemSubmit = async () => {
     if (editingItem) {
-      // Update existing item
+      // Update existing item - in a real app, this would call an API
       setInventory((prev) =>
         prev.map((item) =>
-          item.id === editingItem.id
-            ? { ...itemForm, id: editingItem.id }
-            : item
+          item._id === editingItem._id ? { ...editingItem, ...itemForm } : item
         )
       );
     } else {
-      // Add new item
+      // Add new item - in a real app, this would call an API
       const newItem = {
         ...itemForm,
-        id: Math.random().toString(36).substr(2, 9),
-      };
-      setInventory((prev) => [...prev, newItem]);
+        _id: Math.random().toString(36).substr(2, 9),
+        createdBy: "currentUserId",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        __v: 0,
+      } as InventoryItem;
+      try {
+        const response = await addInventoryItem(itemForm as InventoryItem);
+        console.log(response);
+        setInventory((prev) => [...prev, newItem]);
+
+        setItemForm({
+          name: "",
+          description: "",
+          quantity: 0,
+          price: 0,
+          category: "",
+        });
+        setEditingItem(null);
+        setIsItemModalOpen(false);
+      } catch (error) {}
     }
 
     // Reset form and close modal
-    setItemForm({ name: "", description: "", quantity: 0, price: 0 });
-    setEditingItem(null);
-    setIsItemModalOpen(false);
   };
 
   // Customer form handlers
@@ -154,36 +206,42 @@ export default function InventoryDashboard() {
 
   const handleCustomerSubmit = () => {
     if (editingCustomer) {
-      // Update existing customer
+      // Update existing customer - in a real app, this would call an API
       setCustomers((prev) =>
         prev.map((customer) =>
-          customer.id === editingCustomer.id
-            ? { ...customerForm, id: editingCustomer.id }
+          customer._id === editingCustomer._id
+            ? { ...editingCustomer, ...customerForm }
             : customer
         )
       );
     } else {
-      // Add new customer
+      // Add new customer - in a real app, this would call an API
       const newCustomer = {
         ...customerForm,
-        id: Math.random().toString(36).substr(2, 9),
-      };
+        _id: Math.random().toString(36).substr(2, 9),
+        createdBy: "currentUserId",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        __v: 0,
+      } as Customer;
       setCustomers((prev) => [...prev, newCustomer]);
     }
 
     // Reset form and close modal
-    setCustomerForm({ name: "", address: "", mobileNumber: "" });
+    setCustomerForm({ name: "", address: "", mobile: "", email: "" });
     setEditingCustomer(null);
     setIsCustomerModalOpen(false);
   };
 
   // Delete handlers
   const handleDeleteItem = (id: string) => {
-    setInventory((prev) => prev.filter((item) => item.id !== id));
+    // In a real app, this would call an API
+    setInventory((prev) => prev.filter((item) => item._id !== id));
   };
 
   const handleDeleteCustomer = (id: string) => {
-    setCustomers((prev) => prev.filter((customer) => customer.id !== id));
+    // In a real app, this would call an API
+    setCustomers((prev) => prev.filter((customer) => customer._id !== id));
   };
 
   // Edit handlers
@@ -194,6 +252,7 @@ export default function InventoryDashboard() {
       description: item.description,
       quantity: item.quantity,
       price: item.price,
+      category: item.category,
     });
     setIsItemModalOpen(true);
   };
@@ -203,7 +262,8 @@ export default function InventoryDashboard() {
     setCustomerForm({
       name: customer.name,
       address: customer.address,
-      mobileNumber: customer.mobileNumber,
+      mobile: customer.mobile,
+      email: customer.email,
     });
     setIsCustomerModalOpen(true);
   };
@@ -272,6 +332,7 @@ export default function InventoryDashboard() {
                     description: "",
                     quantity: 0,
                     price: 0,
+                    category: "",
                   });
                   setIsItemModalOpen(true);
                 }}
@@ -293,6 +354,9 @@ export default function InventoryDashboard() {
                       Description
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Quantity
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -305,7 +369,7 @@ export default function InventoryDashboard() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredInventory.map((item) => (
-                    <tr key={item.id}>
+                    <tr key={item._id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
                           {item.name}
@@ -314,6 +378,11 @@ export default function InventoryDashboard() {
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-500">
                           {item.description}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-500">
+                          {item.category}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -334,7 +403,7 @@ export default function InventoryDashboard() {
                           <Edit size={16} />
                         </button>
                         <button
-                          onClick={() => handleDeleteItem(item.id)}
+                          onClick={() => handleDeleteItem(item._id)}
                           className="text-red-600 hover:text-red-900"
                         >
                           <Delete size={16} />
@@ -356,7 +425,12 @@ export default function InventoryDashboard() {
                 className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
                 onClick={() => {
                   setEditingCustomer(null);
-                  setCustomerForm({ name: "", address: "", mobileNumber: "" });
+                  setCustomerForm({
+                    name: "",
+                    address: "",
+                    mobile: "",
+                    email: "",
+                  });
                   setIsCustomerModalOpen(true);
                 }}
               >
@@ -377,7 +451,10 @@ export default function InventoryDashboard() {
                       Address
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Mobile Number
+                      Mobile
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Email
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -386,7 +463,7 @@ export default function InventoryDashboard() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {customers.map((customer) => (
-                    <tr key={customer.id}>
+                    <tr key={customer._id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
                           {customer.name}
@@ -399,7 +476,12 @@ export default function InventoryDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {customer.mobileNumber}
+                          {customer.mobile}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {customer.email}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -410,7 +492,7 @@ export default function InventoryDashboard() {
                           <Edit size={16} />
                         </button>
                         <button
-                          onClick={() => handleDeleteCustomer(customer.id)}
+                          onClick={() => handleDeleteCustomer(customer._id)}
                           className="text-red-600 hover:text-red-900"
                         >
                           <Delete size={16} />
@@ -471,6 +553,24 @@ export default function InventoryDashboard() {
                     onChange={handleItemFormChange as any}
                     required
                   ></textarea>
+                </div>
+                <div className="mb-4">
+                  <label
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                    htmlFor="category"
+                  >
+                    Category
+                  </label>
+                  <input
+                    id="category"
+                    name="category"
+                    type="text"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    placeholder="Item category"
+                    value={itemForm.category}
+                    onChange={handleItemFormChange}
+                    required
+                  />
                 </div>
                 <div className="mb-4">
                   <label
@@ -577,20 +677,38 @@ export default function InventoryDashboard() {
                     required
                   ></textarea>
                 </div>
-                <div className="mb-6">
+                <div className="mb-4">
                   <label
                     className="block text-gray-700 text-sm font-bold mb-2"
-                    htmlFor="mobileNumber"
+                    htmlFor="mobile"
                   >
                     Mobile Number
                   </label>
                   <input
-                    id="mobileNumber"
-                    name="mobileNumber"
+                    id="mobile"
+                    name="mobile"
                     type="text"
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     placeholder="Mobile number"
-                    value={customerForm.mobileNumber}
+                    value={customerForm.mobile}
+                    onChange={handleCustomerFormChange}
+                    required
+                  />
+                </div>
+                <div className="mb-6">
+                  <label
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                    htmlFor="email"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    placeholder="Email address"
+                    value={customerForm.email}
                     onChange={handleCustomerFormChange}
                     required
                   />
