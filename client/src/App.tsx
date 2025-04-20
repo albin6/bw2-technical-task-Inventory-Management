@@ -3,6 +3,7 @@ import LoginForm from "./components/auth-components/LoginForm";
 import SignupForm from "./components/auth-components/SignupForm";
 import InventoryDashboard from "./components/InventoryDashboard";
 import Layout from "./components/layout/Layout";
+import SalesForm from "./components/SalesForm";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function AppLayout() {
         <Route path="/signup" element={<SignupForm />} />
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<InventoryDashboard />} />
+          <Route path="/sales" element={<SalesForm />} />
         </Route>
       </Routes>
     </Router>

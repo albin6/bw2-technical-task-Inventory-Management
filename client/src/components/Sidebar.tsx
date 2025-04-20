@@ -1,20 +1,9 @@
 import React, { useState } from "react";
-import {
-  Package,
-  ShoppingCart,
-  BarChart2,
-  FileText,
-  Users,
-  Search,
-  Plus,
-  List,
-  Printer,
-  File,
-  FileSpreadsheet,
-  Mail,
-} from "lucide-react";
+import { Package, ShoppingCart, BarChart2, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Sidebar() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("inventory");
   const [expandedSubmenu, setExpandedSubmenu] = useState("");
 
@@ -44,6 +33,7 @@ export default function Sidebar() {
                 onClick={() => {
                   setActiveTab("inventory");
                   toggleSubmenu("inventory");
+                  navigate("/dashboard");
                 }}
                 className={`flex items-center w-full p-3 hover:bg-gray-700 ${
                   activeTab === "inventory" ? "bg-gray-700" : ""
@@ -53,7 +43,7 @@ export default function Sidebar() {
                 <span>Inventory Management</span>
               </button>
 
-              {expandedSubmenu === "inventory" && (
+              {/* {expandedSubmenu === "inventory" && (
                 <ul className="bg-gray-700 pl-10">
                   <li>
                     <button className="flex items-center w-full p-2 hover:bg-gray-600">
@@ -80,7 +70,7 @@ export default function Sidebar() {
                     </button>
                   </li>
                 </ul>
-              )}
+              )} */}
             </li>
 
             {/* Sales */}
@@ -89,6 +79,7 @@ export default function Sidebar() {
                 onClick={() => {
                   setActiveTab("sales");
                   toggleSubmenu("sales");
+                  navigate("/sales");
                 }}
                 className={`flex items-center w-full p-3 hover:bg-gray-700 ${
                   activeTab === "sales" ? "bg-gray-700" : ""
@@ -98,7 +89,7 @@ export default function Sidebar() {
                 <span>Sales</span>
               </button>
 
-              {expandedSubmenu === "sales" && (
+              {/* {expandedSubmenu === "sales" && (
                 <ul className="bg-gray-700 pl-10">
                   <li>
                     <button className="flex items-center w-full p-2 hover:bg-gray-600">
@@ -113,7 +104,7 @@ export default function Sidebar() {
                     </button>
                   </li>
                 </ul>
-              )}
+              )} */}
             </li>
 
             {/* Reports */}
@@ -122,6 +113,7 @@ export default function Sidebar() {
                 onClick={() => {
                   setActiveTab("reports");
                   toggleSubmenu("reports");
+                  navigate("/reports");
                 }}
                 className={`flex items-center w-full p-3 hover:bg-gray-700 ${
                   activeTab === "reports" ? "bg-gray-700" : ""
@@ -131,7 +123,7 @@ export default function Sidebar() {
                 <span>Reports</span>
               </button>
 
-              {expandedSubmenu === "reports" && (
+              {/* {expandedSubmenu === "reports" && (
                 <ul className="bg-gray-700 pl-10">
                   <li>
                     <button className="flex items-center w-full p-2 hover:bg-gray-600">
@@ -152,7 +144,29 @@ export default function Sidebar() {
                     </button>
                   </li>
                 </ul>
-              )}
+              )} */}
+              {/* {expandedSubmenu === "reports" && (
+                <ul className="bg-gray-700 pl-10">
+                  <li>
+                    <button className="flex items-center w-full p-2 hover:bg-gray-600">
+                      <ShoppingCart size={16} className="mr-2" />
+                      <span>Sales Report</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button className="flex items-center w-full p-2 hover:bg-gray-600">
+                      <Package size={16} className="mr-2" />
+                      <span>Items Report</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button className="flex items-center w-full p-2 hover:bg-gray-600">
+                      <FileText size={16} className="mr-2" />
+                      <span>Customer Ledger</span>
+                    </button>
+                  </li>
+                </ul>
+              )} */}
             </li>
 
             {/* Data Export */}
@@ -161,6 +175,7 @@ export default function Sidebar() {
                 onClick={() => {
                   setActiveTab("export");
                   toggleSubmenu("export");
+                  navigate("/export");
                 }}
                 className={`flex items-center w-full p-3 hover:bg-gray-700 ${
                   activeTab === "export" ? "bg-gray-700" : ""
@@ -170,7 +185,7 @@ export default function Sidebar() {
                 <span>Data Export</span>
               </button>
 
-              {expandedSubmenu === "export" && (
+              {/* {expandedSubmenu === "export" && (
                 <ul className="bg-gray-700 pl-10">
                   <li>
                     <button className="flex items-center w-full p-2 hover:bg-gray-600">
@@ -197,7 +212,7 @@ export default function Sidebar() {
                     </button>
                   </li>
                 </ul>
-              )}
+              )} */}
             </li>
           </ul>
         </nav>
