@@ -232,7 +232,7 @@ export default function Sidebar() {
       </div>
 
       {/* Main Content Placeholder */}
-      <div className="flex-1 bg-gray-100 p-6">
+      {/* <div className="flex-1 bg-gray-100 p-6">
         <h2 className="text-2xl font-bold mb-4">
           {activeTab === "inventory" && "Inventory Management"}
           {activeTab === "sales" && "Sales"}
@@ -244,7 +244,7 @@ export default function Sidebar() {
             Select an option from the sidebar to view content
           </p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

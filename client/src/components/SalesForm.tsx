@@ -38,6 +38,8 @@ const SalesForm = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
+  const user = JSON.parse(localStorage.getItem("user") || "");
+
   // Form state
   const [saleData, setSaleData] = useState<SaleFormData>({
     date: new Date().toISOString().split("T")[0],
@@ -56,13 +58,17 @@ const SalesForm = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [inventoryRes, customersRes] = await Promise.all([
-          axiosInstance.get("/inventory"),
-          axiosInstance.get("/customers"),
-        ]);
+        const [inventoryRes, customersRes, salesByCustomer] = await Promise.all(
+          [
+            axiosInstance.get("/inventory"),
+            axiosInstance.get("/customers"),
+            axiosInstance.get(`/sales/customer/${user.id}`),
+          ]
+        );
 
         setInventory(inventoryRes.data.data);
         setCustomers(customersRes.data.data);
+        setSaleData(salesByCustomer.data.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {

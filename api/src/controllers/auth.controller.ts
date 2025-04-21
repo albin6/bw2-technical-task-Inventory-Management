@@ -20,7 +20,12 @@ export const register = async (req: Request, res: Response) => {
   const { username, email, password, role } = req.body;
 
   // Check if user already exists
-  const userExists = await User.findOne({ $or: [{ email }, { username }] });
+  const userExists = await User.findOne({
+    $or: [
+      { email, role },
+      { username, role },
+    ],
+  });
   if (userExists) {
     throw new AppError(Messages.auth.USER_EXISTS, StatusCode.CONFLICT);
   }
@@ -35,6 +40,7 @@ export const register = async (req: Request, res: Response) => {
 
   const payload: CustomJwtPayload = {
     id: user._id as string,
+    role,
     email: user.email,
   };
 
@@ -58,10 +64,10 @@ export const register = async (req: Request, res: Response) => {
 // @route   POST /api/auth/login
 // @access  Public
 export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
   // Check if user exists
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email, role });
   if (!user) {
     throw new AppError(
       Messages.auth.INVALID_CREDENTIALS,
@@ -80,6 +86,7 @@ export const login = async (req: Request, res: Response) => {
 
   const payload: CustomJwtPayload = {
     id: user._id as string,
+    role: user.role,
     email: user.email,
   };
 

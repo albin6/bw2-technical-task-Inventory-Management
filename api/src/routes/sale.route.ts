@@ -5,6 +5,7 @@ import {
   deleteSale,
   getSale,
   getSales,
+  getSalesByCustomer,
   updateSale,
 } from "../controllers/sales.controller";
 
@@ -16,5 +17,7 @@ router.use(verifyAuth);
 router.route("/").get(getSales).post(createSale);
 
 router.route("/:id").get(getSale).put(updateSale).delete(deleteSale);
+
+router.get("/customer/:id", getSalesByCustomer);
 
 export default router;

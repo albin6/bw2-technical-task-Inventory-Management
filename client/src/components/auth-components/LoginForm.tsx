@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Form, Input, Button, Card, Typography } from "antd";
+import { Form, Input, Button, Card, Typography, Radio } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ const { Title, Text } = Typography;
 export interface LoginFormValues {
   email: string;
   password: string;
+  role: "admin" | "customer";
 }
 
 export default function LoginForm() {
@@ -31,7 +32,7 @@ export default function LoginForm() {
       // Here you would implement your actual login logic
       console.log("Login form values:", values);
 
-      // Simulate API call
+      // Simulate API call with role included
       const data = await login(values);
 
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -62,6 +63,7 @@ export default function LoginForm() {
           onFinish={onFinish}
           autoComplete="off"
           requiredMark={false}
+          initialValues={{ role: "customer" }}
         >
           <Form.Item
             name="email"
@@ -91,6 +93,17 @@ export default function LoginForm() {
               placeholder="Password"
               size="large"
             />
+          </Form.Item>
+
+          <Form.Item
+            name="role"
+            label="Login as"
+            rules={[{ required: true, message: "Please select a role" }]}
+          >
+            <Radio.Group>
+              <Radio value="customer">Customer</Radio>
+              <Radio value="admin">Admin</Radio>
+            </Radio.Group>
           </Form.Item>
 
           <Form.Item className="mb-2">
