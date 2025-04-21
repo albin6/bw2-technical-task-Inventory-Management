@@ -6,11 +6,6 @@ import cookieParser from "cookie-parser";
 import express, { Request, Response } from "express";
 
 import { errorHandler } from "./middlewares/error-handler.middleware";
-import authRouter from "./routes/auth.route";
-import salesRouter from "./routes/sale.route";
-import customerRouter from "./routes/customer.route";
-import inventoryRouter from "./routes/inventory.route";
-import reportRouter from "./routes/report.route";
 import { connectDB } from "./config/db";
 
 dotenv.config();
@@ -29,12 +24,6 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
-
-app.use("/api/auth", authRouter);
-app.use("/api/inventory", inventoryRouter);
-app.use("/api/sales", salesRouter);
-app.use("/api/customer", customerRouter);
-app.use("/api/report", reportRouter);
 
 app.use("/", (req: Request, res: Response) => {
   res.json("Application is running!!!");

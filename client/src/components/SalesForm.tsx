@@ -68,7 +68,6 @@ const SalesForm = () => {
 
         setInventory(inventoryRes.data.data);
         setCustomers(customersRes.data.data);
-        setSaleData(salesByCustomer.data.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
