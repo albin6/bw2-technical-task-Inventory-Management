@@ -1,7 +1,7 @@
 export const Messages = {
   auth: {
     USER_CREATED: "User created successfully",
-    USER_EXISTS: "User already exists",
+    EMAIL_EXISTS: "Email already exists",
     WRONG_PASSWORD: "Wrong password",
     SET_DIFF_PASSWORD: "Set a new password other than you old.",
     INVALID_CREDENTIALS: "Invalid email or password",

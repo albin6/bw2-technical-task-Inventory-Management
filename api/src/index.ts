@@ -7,6 +7,7 @@ import express, { Request, Response } from "express";
 
 import { errorHandler } from "./middlewares/error-handler.middleware";
 import { connectDB } from "./config/db";
+import authRoutes from "./routes/auth.route";
 
 dotenv.config();
 
@@ -24,6 +25,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
+
+app.use("/api/auth", authRoutes);
 
 app.use("/", (req: Request, res: Response) => {
   res.json("Application is running!!!");

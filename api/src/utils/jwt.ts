@@ -1,6 +1,10 @@
-import { CustomJwtPayload } from "../types/auth.type";
 import * as jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+
+export interface CustomJwtPayload extends jwt.JwtPayload {
+  id: string;
+  email: string;
+}
 
 dotenv.config();
 

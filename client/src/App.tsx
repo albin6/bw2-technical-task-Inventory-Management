@@ -1,31 +1,51 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LoginForm from "./components/auth-components/LoginForm";
-import SignupForm from "./components/auth-components/SignupForm";
-import InventoryDashboard from "./components/InventoryDashboard";
-import Layout from "./components/layout/Layout";
-import SalesForm from "./components/SalesForm";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
+import { AuthPage } from "./pages/AuthPage";
+import { useState } from "react";
+import AppLayout from "./components/layout/AppLayout";
+import { Toaster } from "sonner";
 
 function App() {
   return (
     <>
-      <AppLayout />
+      <Router>
+        <Toaster />
+        <AppRoute />
+      </Router>
     </>
   );
 }
 
 export default App;
 
-function AppLayout() {
+function AppRoute() {
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  const handleLogout = () => {
+    console.log("User logged out");
+    setIsLoggedIn(false);
+    localStorage.removeItem("user");
+    navigate("/");
+  };
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LoginForm />} />
-        <Route path="/signup" element={<SignupForm />} />
-        <Route element={<Layout />}>
-          <Route path="/dashboard" element={<InventoryDashboard />} />
-          <Route path="/sales" element={<SalesForm />} />
-        </Route>
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/" element={<AuthPage />} />
+      <Route
+        element={
+          <AppLayout
+            isLoggedIn={isLoggedIn}
+            userName="John Doe"
+            onLogout={handleLogout}
+          />
+        }
+      >
+        <Route path="/dashboard" element={<h2>Test Route</h2>} />
+      </Route>
+    </Routes>
   );
 }
