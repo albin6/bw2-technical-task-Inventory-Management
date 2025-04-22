@@ -28,6 +28,9 @@ export const Messages = {
     CUSTOMER_NOT_FOUND: "Customer not found",
     ALREADY_EXISTS: "Customer with the name and number already exists",
   },
+  sale: {
+    NOT_FOUND: "Sale not found.",
+  },
   common: {
     UNAUTHORIZED: "Unauthorized access",
     SERVER_ERROR: "Internal server error",

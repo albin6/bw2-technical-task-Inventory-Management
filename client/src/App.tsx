@@ -10,6 +10,7 @@ import AppLayout from "./components/layout/AppLayout";
 import { Toaster } from "sonner";
 import InventoryPage from "./pages/InventoryPage";
 import { CustomerPage } from "./pages/CustomerPage";
+import SalesModule from "./components/SalesModule";
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function AppRoute() {
           <Route path="customers" element={<CustomerPage />} />
           <Route path="inventory" element={<InventoryPage />} />
         </Route>
+        <Route path="/sales" element={<SalesModule />} />
       </Route>
     </Routes>
   );
