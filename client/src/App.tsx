@@ -9,6 +9,7 @@ import { useState } from "react";
 import AppLayout from "./components/layout/AppLayout";
 import { Toaster } from "sonner";
 import InventoryPage from "./pages/InventoryPage";
+import { CustomerPage } from "./pages/CustomerPage";
 
 function App() {
   return (
@@ -47,7 +48,7 @@ function AppRoute() {
       >
         <Route path="/dashboard">
           <Route index element={<h1>Test Route</h1>} />
-          <Route path="customers" element={<h1>Customers</h1>} />
+          <Route path="customers" element={<CustomerPage />} />
           <Route path="inventory" element={<InventoryPage />} />
         </Route>
       </Route>

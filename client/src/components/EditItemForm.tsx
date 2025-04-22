@@ -28,7 +28,7 @@ export const EditItemForm: React.FC<EditItemFormProps> = ({
     form
       .validateFields()
       .then((values) => {
-        onSave({ ...values, id: item.id });
+        onSave({ ...values, _id: item._id });
       })
       .catch((info) => {
         console.log("Validate Failed:", info);

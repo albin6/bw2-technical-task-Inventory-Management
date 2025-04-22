@@ -91,7 +91,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
           <Button
             danger
             icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.id)}
+            onClick={() => handleDelete(record._id)}
           >
             Delete
           </Button>

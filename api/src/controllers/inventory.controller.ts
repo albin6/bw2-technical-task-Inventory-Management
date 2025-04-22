@@ -98,11 +98,38 @@ export const getInventoryItem = async (req: Request, res: Response) => {
 };
 
 export const getAllInventoryItems = async (req: Request, res: Response) => {
-  const items = await InventoryItem.find();
+  // Extract query parameters
+  const { page = 1, limit = 10, search = "" } = req.query;
+
+  // Convert to appropriate types
+  const pageNum = parseInt(page as string, 10);
+  const limitNum = parseInt(limit as string, 10);
+  const skip = (pageNum - 1) * limitNum;
+
+  // Build search query
+  const searchQuery = search
+    ? {
+        $or: [
+          { name: { $regex: search as string, $options: "i" } },
+          { description: { $regex: search as string, $options: "i" } },
+        ],
+      }
+    : {};
+
+  // Count total matching documents for pagination info
+  const totalItems = await InventoryItem.countDocuments(searchQuery);
+
+  // Get paginated results
+  const items = await InventoryItem.find(searchQuery)
+    .skip(skip)
+    .limit(limitNum);
 
   res.status(StatusCode.OK).json({
     success: true,
     count: items.length,
+    totalItems,
+    currentPage: pageNum,
+    totalPages: Math.ceil(totalItems / limitNum),
     data: items,
   });
 };

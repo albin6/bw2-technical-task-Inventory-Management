@@ -26,6 +26,7 @@ export const Messages = {
     LACK_OF_DATA: "Please provide name, address, and mobile number",
     INVALID_CUS_ID: "Invalid customer ID",
     CUSTOMER_NOT_FOUND: "Customer not found",
+    ALREADY_EXISTS: "Customer with the name and number already exists",
   },
   common: {
     UNAUTHORIZED: "Unauthorized access",

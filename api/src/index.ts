@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 import cors from "cors";
-import path from "path";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import express, { Request, Response } from "express";
@@ -9,6 +8,7 @@ import { errorHandler } from "./middlewares/error-handler.middleware";
 import { connectDB } from "./config/db";
 import authRoutes from "./routes/auth.route";
 import inventoryRoutes from "./routes/inventory.route";
+import customerRoutes from "./routes/customer.route";
 
 dotenv.config();
 
@@ -27,6 +27,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/inventory", inventoryRoutes);
+app.use("/api/customer", customerRoutes);
 
 app.use("/", (req: Request, res: Response) => {
   res.json("Application is running!!!");
