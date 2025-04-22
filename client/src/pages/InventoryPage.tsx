@@ -5,6 +5,9 @@ import { AddItemForm } from "../components/AddItemForm";
 import { EditItemForm } from "../components/EditItemForm";
 import { SearchBar } from "../components/Searchbar";
 import type { Item } from "../types/Item";
+import { addItem } from "@/api/inventory.service";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
@@ -67,11 +70,21 @@ export default function InventoryPage() {
   }, [items, searchTerm]);
 
   // Add a new item
-  const handleAddItem = (newItem: Omit<Item, "id">) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    const itemWithId = { ...newItem, id };
-    setItems([...items, itemWithId]);
-    setIsAddModalOpen(false);
+  const handleAddItem = async (newItem: Omit<Item, "id">) => {
+    console.log(newItem);
+    try {
+      const data = await addItem(newItem);
+      toast.success(data.message);
+
+      const id = Math.random().toString(36).substring(2, 9);
+      const itemWithId = { ...newItem, id };
+      setItems([...items, itemWithId]);
+      setIsAddModalOpen(false);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      }
+    }
   };
 
   // Edit an existing item

@@ -12,6 +12,13 @@ export const Messages = {
     USER_ID_NOT_PROVIDED: "User ID not provided",
     EMAIL_REQUIRED: "Email address is required",
   },
+  item: {
+    ITEM_EXISTS: "Item already exists",
+    ITEM_CREATED: "Item added successfully",
+    ITEM_NOT_FOUND: "Item not found",
+    ITEM_UPDATED: "Item updated successfully",
+    ITEM_DELETED: "Item deleted successfully",
+  },
   customer: {
     CREATED_SUCCESS: "Customer created successfully",
     UPDATED_SUCCESS: "Customer updated successfully",

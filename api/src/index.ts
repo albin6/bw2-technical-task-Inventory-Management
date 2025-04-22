@@ -8,6 +8,7 @@ import express, { Request, Response } from "express";
 import { errorHandler } from "./middlewares/error-handler.middleware";
 import { connectDB } from "./config/db";
 import authRoutes from "./routes/auth.route";
+import inventoryRoutes from "./routes/inventory.route";
 
 dotenv.config();
 
@@ -24,9 +25,8 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
-
 app.use("/api/auth", authRoutes);
+app.use("/api/inventory", inventoryRoutes);
 
 app.use("/", (req: Request, res: Response) => {
   res.json("Application is running!!!");
