@@ -8,6 +8,7 @@ import { AuthPage } from "./pages/AuthPage";
 import { useState } from "react";
 import AppLayout from "./components/layout/AppLayout";
 import { Toaster } from "sonner";
+import InventoryPage from "./pages/InventoryPage";
 
 function App() {
   return (
@@ -44,7 +45,11 @@ function AppRoute() {
           />
         }
       >
-        <Route path="/dashboard" element={<h2>Test Route</h2>} />
+        <Route path="/dashboard">
+          <Route index element={<h1>Test Route</h1>} />
+          <Route path="customers" element={<h1>Customers</h1>} />
+          <Route path="inventory" element={<InventoryPage />} />
+        </Route>
       </Route>
     </Routes>
   );

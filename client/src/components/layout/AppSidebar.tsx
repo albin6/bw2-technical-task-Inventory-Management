@@ -9,6 +9,7 @@ import {
   InboxOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const { Sider } = Layout;
 
@@ -20,6 +21,15 @@ interface AppSidebarProps {
 }
 
 const AppSidebar: React.FC<AppSidebarProps> = ({ collapsed, onCollapse }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname.substring(1) || "dashboard";
+
+  // Extract the parent key if we're on a child route
+  const openKey = currentPath.includes("/")
+    ? currentPath.split("/")[0]
+    : currentPath;
+
   const getItem = (
     label: React.ReactNode,
     key: React.Key,
@@ -36,13 +46,17 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ collapsed, onCollapse }) => {
 
   const items: MenuItem[] = [
     getItem("Dashboard", "dashboard", <DashboardOutlined />, [
-      getItem("Customer Management", "customers", <TeamOutlined />),
-      getItem("Inventory Management", "inventory", <InboxOutlined />),
+      getItem("Customer Management", "dashboard/customers", <TeamOutlined />),
+      getItem("Inventory Management", "dashboard/inventory", <InboxOutlined />),
     ]),
     getItem("Sales", "sales", <ShoppingCartOutlined />),
     getItem("Reports", "reports", <BarChartOutlined />),
     getItem("Exports", "exports", <ExportOutlined />),
   ];
+
+  const handleMenuClick = (e: { key: string }) => {
+    navigate(`/${e.key}`);
+  };
 
   return (
     <Sider
@@ -66,10 +80,11 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ collapsed, onCollapse }) => {
       </div>
       <Menu
         mode="inline"
-        defaultSelectedKeys={["dashboard"]}
-        defaultOpenKeys={["dashboard"]}
+        selectedKeys={[currentPath]}
+        defaultOpenKeys={[openKey]}
         items={items}
         className="border-r-0"
+        onClick={handleMenuClick}
       />
     </Sider>
   );
