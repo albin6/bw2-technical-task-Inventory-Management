@@ -3,7 +3,6 @@ import mongoose, { Document, Model, Schema } from "mongoose";
 export interface IUser extends Document {
   email: string;
   password: string;
-  // extend with roles or other fields if needed
 }
 
 const UserSchema: Schema<IUser> = new Schema(

@@ -1,21 +1,25 @@
-import type React from "react";
+import React from "react";
 import { Table, Button, Tag } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
-import type { Sale } from "./SalesModule";
+import { Sale } from "./SalesModule";
 
 interface SalesListProps {
   sales: Sale[];
-  onViewDetails: (sale: Sale) => void;
+  onViewDetails: (saleId: string) => void;
+  loading: boolean;
 }
 
-const SalesList: React.FC<SalesListProps> = ({ sales, onViewDetails }) => {
+const SalesList: React.FC<SalesListProps> = ({
+  sales,
+  onViewDetails,
+  loading,
+}) => {
   const columns = [
     {
       title: "Date",
       dataIndex: "date",
       key: "date",
-      render: (date: Date) => date.toLocaleDateString(),
-      sorter: (a: Sale, b: Sale) => a.date.getTime() - b.date.getTime(),
+      render: (date: Date) => new Date(date).toLocaleDateString(),
     },
     {
       title: "Items",
@@ -23,51 +27,42 @@ const SalesList: React.FC<SalesListProps> = ({ sales, onViewDetails }) => {
       key: "items",
       render: (items: any[]) => (
         <span>
-          {items.map((item, index) => (
-            <Tag color="blue" key={index}>
-              {item.item.name}
+          {items.slice(0, 2).map((item, index) => (
+            <Tag key={index} color="blue">
+              {item.name || (item.item as any)?.name} x{item.quantity}
             </Tag>
           ))}
+          {items.length > 2 && (
+            <Tag color="default">+{items.length - 2} more</Tag>
+          )}
         </span>
       ),
-    },
-    {
-      title: "Quantity",
-      key: "quantity",
-      render: (_: any, record: Sale) => {
-        const totalQuantity = record.items.reduce(
-          (sum, item) => sum + item.quantity,
-          0
-        );
-        return totalQuantity;
-      },
     },
     {
       title: "Customer",
       key: "customer",
       render: (_: any, record: Sale) =>
-        record.customer ? (
-          record.customer.name
-        ) : (
-          <Tag color="orange">Cash Sale</Tag>
-        ),
+        // Handle different customer representations from API
+        typeof record.customer === "string"
+          ? record.customer
+          : record.isCashSale
+          ? "Cash"
+          : (record.customer as any)?.name || "Unknown",
     },
     {
       title: "Total",
-      dataIndex: "total",
       key: "total",
-      render: (total: number) => `$${total.toFixed(2)}`,
-      sorter: (a: Sale, b: Sale) => a.total - b.total,
+      dataIndex: "totalAmount",
+      render: (totalAmount: number) => `$${totalAmount?.toFixed(2) || "0.00"}`,
     },
     {
-      title: "Actions",
-      key: "actions",
+      title: "Action",
+      key: "action",
       render: (_: any, record: Sale) => (
         <Button
-          type="primary"
           icon={<EyeOutlined />}
-          onClick={() => onViewDetails(record)}
-          className="bg-blue-500 hover:bg-blue-600"
+          onClick={() => record._id && onViewDetails(record._id)}
+          type="primary"
         >
           View Details
         </Button>
@@ -76,14 +71,13 @@ const SalesList: React.FC<SalesListProps> = ({ sales, onViewDetails }) => {
   ];
 
   return (
-    <div className="bg-white rounded-lg">
-      <h2 className="text-xl font-semibold mb-6">Sales Transactions</h2>
+    <div>
       <Table
         columns={columns}
         dataSource={sales}
         rowKey="_id"
+        loading={loading}
         pagination={{ pageSize: 10 }}
-        className="shadow-sm"
       />
     </div>
   );

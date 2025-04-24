@@ -1,18 +1,20 @@
-import type React from "react";
-import { useState } from "react";
-import { Layout, Tabs } from "antd";
+import React, { useState, useEffect } from "react";
+import { Layout, Tabs, message } from "antd";
 import RecordSaleForm from "./RecordSaleForm";
 import SalesList from "./SalesList";
 import SaleDetails from "./SaleDetails";
+import { recordSale, getSalesList } from "../api/sale.service";
+import { getAllItems } from "../api/inventory.service";
+import { listCustomer } from "../api/customer.service";
 
 const { Content } = Layout;
 const { TabPane } = Tabs;
 
-// Mock data types
+// Interface definitions matching your backend models
 export interface InventoryItem {
   _id: string;
   name: string;
-  stock: number;
+  quantity: number; // Changed from 'stock' to match your backend
   price: number;
 }
 
@@ -24,90 +26,101 @@ export interface Customer {
 }
 
 export interface SaleItem {
-  item: InventoryItem;
+  itemId: string; // For creating a sale
   quantity: number;
-  price: number;
+  item?: InventoryItem; // For display purposes
+  priceAtSale?: number;
 }
 
 export interface Sale {
-  _id: string;
-  date: Date;
+  _id?: string;
+  date?: Date;
   items: SaleItem[];
-  customer: Customer | null;
-  total: number;
+  customerId?: string; // For creating a sale
+  customer?: Customer | string; // Could be Customer object or "Cash"
+  totalAmount?: number;
+  isCashSale?: boolean;
 }
 
-// Mock data
-export const mockInventoryItems: InventoryItem[] = [
-  { _id: "1", name: "Laptop", stock: 15, price: 999.99 },
-  { _id: "2", name: "Smartphone", stock: 25, price: 499.99 },
-  { _id: "3", name: "Headphones", stock: 50, price: 79.99 },
-  { _id: "4", name: "Monitor", stock: 10, price: 249.99 },
-  { _id: "5", name: "Keyboard", stock: 30, price: 59.99 },
-];
-
-export const mockCustomers: Customer[] = [
-  { _id: "1", name: "John Doe", email: "john@example.com", phone: "555-1234" },
-  {
-    _id: "2",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    phone: "555-5678",
-  },
-  {
-    _id: "3",
-    name: "Bob Johnson",
-    email: "bob@example.com",
-    phone: "555-9012",
-  },
-];
-
-export const mockSales: Sale[] = [
-  {
-    _id: "1",
-    date: new Date("2023-05-15"),
-    items: [
-      {
-        item: mockInventoryItems[0],
-        quantity: 1,
-        price: mockInventoryItems[0].price,
-      },
-      {
-        item: mockInventoryItems[2],
-        quantity: 2,
-        price: mockInventoryItems[2].price,
-      },
-    ],
-    customer: mockCustomers[0],
-    total: 999.99 + 79.99 * 2,
-  },
-  {
-    _id: "2",
-    date: new Date("2023-05-16"),
-    items: [
-      {
-        item: mockInventoryItems[1],
-        quantity: 1,
-        price: mockInventoryItems[1].price,
-      },
-    ],
-    customer: null, // Cash sale
-    total: 499.99,
-  },
-];
-
 const SalesModule: React.FC = () => {
-  const [sales, setSales] = useState<Sale[]>(mockSales);
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
 
-  const handleAddSale = (newSale: Sale) => {
-    setSales([...sales, newSale]);
+  // Fetch all data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Fetch inventory items
+        const itemsResponse = await getAllItems(1, 100); // Get a reasonable amount
+        setInventoryItems(itemsResponse.data);
+
+        // Fetch customers
+        const customersResponse = await listCustomer(1, 100);
+        setCustomers(customersResponse.data);
+
+        // Fetch sales
+        const salesResponse = await getSalesList();
+        setSales(salesResponse.result);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error("Failed to load data");
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleAddSale = async (newSale: Sale) => {
+    try {
+      // Format the sale data for the API
+      const saleData = {
+        items: newSale.items.map((item) => ({
+          itemId: item.itemId,
+          quantity: item.quantity,
+        })),
+        customerId: newSale.customerId,
+      };
+
+      // Send to API
+      const response = await recordSale(saleData);
+
+      console.log(response);
+
+      // Refresh sales list
+      const salesResponse = await getSalesList();
+      setSales(salesResponse.result);
+
+      message.success("Sale recorded successfully");
+    } catch (error) {
+      console.error("Error adding sale:", error);
+      message.error("Failed to record sale");
+    }
   };
 
-  const handleViewDetails = (sale: Sale) => {
-    setSelectedSale(sale);
-    setIsDetailsVisible(true);
+  const handleViewDetails = async (saleId: string) => {
+    try {
+      // You need to implement this API function to get a single sale
+      // const response = await getSaleById(saleId);
+      // setSelectedSale(response.sale);
+
+      // For now, find the sale in the already loaded sales
+      const sale = sales.find((s) => s._id === saleId);
+      if (sale) {
+        setSelectedSale(sale);
+        setIsDetailsVisible(true);
+      }
+    } catch (error) {
+      console.error("Error fetching sale details:", error);
+      message.error("Failed to load sale details");
+    }
   };
 
   const handleCloseDetails = () => {
@@ -126,13 +139,18 @@ const SalesModule: React.FC = () => {
           <Tabs defaultActiveKey="1" className="mb-6">
             <TabPane tab="Record Sale" key="1">
               <RecordSaleForm
-                inventoryItems={mockInventoryItems}
-                customers={mockCustomers}
+                inventoryItems={inventoryItems}
+                customers={customers}
                 onSaleSubmit={handleAddSale}
+                loading={loading}
               />
             </TabPane>
             <TabPane tab="Sales List" key="2">
-              <SalesList sales={sales} onViewDetails={handleViewDetails} />
+              <SalesList
+                sales={sales}
+                onViewDetails={handleViewDetails}
+                loading={loading}
+              />
             </TabPane>
           </Tabs>
 

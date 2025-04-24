@@ -10,6 +10,7 @@ import authRoutes from "./routes/auth.route";
 import inventoryRoutes from "./routes/inventory.route";
 import customerRoutes from "./routes/customer.route";
 import salesRoutes from "./routes/sale.route";
+import reportRoutes from "./routes/report.route";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/customer", customerRoutes);
 app.use("/api/sales", salesRoutes);
+app.use("/api/reports", reportRoutes);
 
 app.use("/", (req: Request, res: Response) => {
   res.json("Application is running!!!");

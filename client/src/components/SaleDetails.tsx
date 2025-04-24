@@ -1,6 +1,6 @@
-import type React from "react";
-import { Modal, Descriptions, Table, Tag, Divider } from "antd";
-import type { Sale, SaleItem } from "./SalesModule";
+import React from "react";
+import { Modal, Descriptions, Table } from "antd";
+import { Sale } from "./SalesModule";
 
 interface SaleDetailsProps {
   sale: Sale;
@@ -16,15 +16,24 @@ const SaleDetails: React.FC<SaleDetailsProps> = ({
   const columns = [
     {
       title: "Item",
-      dataIndex: "item",
-      key: "item",
-      render: (item: any) => item.name,
+      dataIndex: ["item", "name"],
+      key: "name",
+      render: (name: string, record: any) =>
+        name ||
+        (typeof record.item === "object" ? record.item.name : "Unknown Item"),
     },
     {
-      title: "Price",
-      dataIndex: "price",
+      title: "Unit Price",
       key: "price",
-      render: (price: number) => `$${price.toFixed(2)}`,
+      render: (_: any, record: any) => {
+        // Handle different price structures from API
+        const price =
+          record.priceAtSale ||
+          (record.item && typeof record.item === "object"
+            ? record.item.price
+            : 0);
+        return `$${price.toFixed(2)}`;
+      },
     },
     {
       title: "Quantity",
@@ -34,65 +43,57 @@ const SaleDetails: React.FC<SaleDetailsProps> = ({
     {
       title: "Subtotal",
       key: "subtotal",
-      render: (_: any, record: SaleItem) =>
-        `$${(record.quantity * record.price).toFixed(2)}`,
+      render: (_: any, record: any) => {
+        // Handle different price structures from API
+        const price =
+          record.priceAtSale ||
+          (record.item && typeof record.item === "object"
+            ? record.item.price
+            : 0);
+        return `$${(record.quantity * price).toFixed(2)}`;
+      },
     },
   ];
 
+  // Format the customer information
+  const getCustomerDisplay = () => {
+    if (sale.isCashSale) return "Cash Sale";
+    if (typeof sale.customer === "string") return sale.customer;
+    if (sale.customer && typeof sale.customer === "object") {
+      return `${sale.customer.name} (${
+        sale.customer.phone || sale.customer.email || ""
+      })`;
+    }
+    return "Unknown";
+  };
+
   return (
     <Modal
-      title={<span className="text-xl">Sale Details</span>}
+      title="Sale Details"
       open={visible}
       onCancel={onClose}
       footer={null}
-      width={700}
+      width={800}
     >
-      <div className="p-4">
-        <Descriptions bordered column={2} className="mb-6">
-          <Descriptions.Item label="Sale ID" span={2}>
-            {sale._id}
-          </Descriptions.Item>
-          <Descriptions.Item label="Date">
-            {sale.date.toLocaleDateString()}
-          </Descriptions.Item>
-          <Descriptions.Item label="Customer">
-            {sale.customer ? (
-              sale.customer.name
-            ) : (
-              <Tag color="orange">Cash Sale</Tag>
-            )}
-          </Descriptions.Item>
-          {sale.customer && (
-            <>
-              <Descriptions.Item label="Email">
-                {sale.customer.email}
-              </Descriptions.Item>
-              <Descriptions.Item label="Phone">
-                {sale.customer.phone}
-              </Descriptions.Item>
-            </>
-          )}
-        </Descriptions>
+      <Descriptions bordered column={1} className="mb-6">
+        <Descriptions.Item label="Sale Date">
+          {sale.date ? new Date(sale.date).toLocaleString() : "N/A"}
+        </Descriptions.Item>
+        <Descriptions.Item label="Customer">
+          {getCustomerDisplay()}
+        </Descriptions.Item>
+        <Descriptions.Item label="Total Amount">
+          ${sale.totalAmount?.toFixed(2) || "0.00"}
+        </Descriptions.Item>
+      </Descriptions>
 
-        <Divider orientation="left">Items Purchased</Divider>
-
-        <Table
-          dataSource={sale.items}
-          columns={columns}
-          pagination={false}
-          rowKey={(record) => record.item._id}
-          className="mb-6"
-        />
-
-        <div className="flex justify-end mt-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="text-lg font-medium">Total Amount</div>
-            <div className="text-2xl font-bold text-green-600">
-              ${sale.total.toFixed(2)}
-            </div>
-          </div>
-        </div>
-      </div>
+      <h3 className="text-lg font-semibold mb-3">Items Purchased</h3>
+      <Table
+        columns={columns}
+        dataSource={sale.items}
+        rowKey={(record, index) => `${record.item?._id || index}`}
+        pagination={false}
+      />
     </Modal>
   );
 };

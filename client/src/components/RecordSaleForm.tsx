@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useState, useEffect } from "react";
 import {
@@ -21,12 +19,14 @@ interface RecordSaleFormProps {
   inventoryItems: InventoryItem[];
   customers: Customer[];
   onSaleSubmit: (sale: Sale) => void;
+  loading: boolean;
 }
 
 const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
   inventoryItems,
   customers,
   onSaleSubmit,
+  loading,
 }) => {
   const [form] = Form.useForm();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -37,7 +37,7 @@ const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
   // Update total whenever sale items change
   useEffect(() => {
     const newTotal = saleItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
+      (sum, item) => sum + (item.priceAtSale || 0) * item.quantity,
       0
     );
     setTotal(newTotal);
@@ -48,7 +48,7 @@ const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
 
     // Add new items that weren't in the previous selection
     const newItems = value.filter(
-      (itemId) => !saleItems.some((saleItem) => saleItem.item._id === itemId)
+      (itemId) => !saleItems.some((saleItem) => saleItem.itemId === itemId)
     );
 
     const updatedSaleItems = [
@@ -56,16 +56,17 @@ const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
       ...newItems.map((itemId) => {
         const item = inventoryItems.find((invItem) => invItem._id === itemId)!;
         return {
-          item,
+          itemId,
+          item, // Store for display purposes
           quantity: 1,
-          price: item.price,
+          priceAtSale: item.price,
         };
       }),
     ];
 
     // Remove items that are no longer selected
     const filteredItems = updatedSaleItems.filter((saleItem) =>
-      value.includes(saleItem.item._id)
+      value.includes(saleItem.itemId)
     );
 
     setSaleItems(filteredItems);
@@ -77,9 +78,11 @@ const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
     const item = inventoryItems.find((item) => item._id === itemId);
     if (!item) return;
 
-    // Validate quantity against stock
-    if (quantity > item.stock) {
-      setValidationError(`Quantity exceeds available stock for ${item.name}`);
+    // Validate quantity against available quantity
+    if (quantity > item.quantity) {
+      setValidationError(
+        `Quantity exceeds available quantity for ${item.name}`
+      );
       return;
     }
 
@@ -87,7 +90,7 @@ const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
 
     setSaleItems((prevItems) =>
       prevItems.map((saleItem) =>
-        saleItem.item._id === itemId ? { ...saleItem, quantity } : saleItem
+        saleItem.itemId === itemId ? { ...saleItem, quantity } : saleItem
       )
     );
   };
@@ -98,11 +101,14 @@ const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
       return;
     }
 
-    // Check if any item exceeds stock
+    // Check if any item exceeds available quantity
     for (const saleItem of saleItems) {
-      if (saleItem.quantity > saleItem.item.stock) {
+      const inventoryItem = inventoryItems.find(
+        (item) => item._id === saleItem.itemId
+      );
+      if (inventoryItem && saleItem.quantity > inventoryItem.quantity) {
         setValidationError(
-          `Quantity exceeds available stock for ${saleItem.item.name}`
+          `Quantity exceeds available quantity for ${inventoryItem.name}`
         );
         return;
       }
@@ -110,14 +116,22 @@ const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
 
     setValidationError(null);
 
+    // Determine if this is a cash sale (no customer selected)
+    const isCashSale = !values.customer;
+
+    // Prepare items for API
+    const saleItemsForSubmit = saleItems.map((item) => ({
+      itemId: item.itemId,
+      quantity: item.quantity,
+      priceAtSale: item.priceAtSale,
+    }));
+
     const newSale: Sale = {
-      _id: Math.random().toString(36).substr(2, 9), // Generate a random ID for demo
       date: values.date.toDate(),
-      items: saleItems,
-      customer: values.customer
-        ? customers.find((c) => c._id === values.customer)!
-        : null,
-      total: total,
+      items: saleItemsForSubmit,
+      customerId: values.customer || undefined,
+      totalAmount: total,
+      isCashSale: isCashSale,
     };
 
     onSaleSubmit(newSale);
@@ -137,27 +151,27 @@ const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
       render: (item: InventoryItem) => item.name,
     },
     {
-      title: "Available Stock",
+      title: "Available Quantity",
       dataIndex: "item",
-      key: "stock",
-      render: (item: InventoryItem) => item.stock,
+      key: "quantity",
+      render: (item: InventoryItem) => item.quantity,
     },
     {
       title: "Price",
-      dataIndex: "item",
+      dataIndex: "priceAtSale",
       key: "price",
-      render: (item: InventoryItem) => `$${item.price.toFixed(2)}`,
+      render: (price: number) => `$${price.toFixed(2)}`,
     },
     {
       title: "Quantity",
       key: "quantity",
-      render: (_, record: SaleItem) => (
+      render: (_: any, record: SaleItem) => (
         <InputNumber
           min={1}
-          max={record.item.stock}
+          max={record.item?.quantity}
           value={record.quantity}
           onChange={(value) =>
-            handleQuantityChange(record.item._id, value as number)
+            handleQuantityChange(record.itemId, value as number)
           }
         />
       ),
@@ -165,8 +179,8 @@ const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
     {
       title: "Subtotal",
       key: "subtotal",
-      render: (_, record: SaleItem) =>
-        `$${(record.quantity * record.price).toFixed(2)}`,
+      render: (_: any, record: SaleItem) =>
+        `$${((record.priceAtSale || 0) * record.quantity).toFixed(2)}`,
     },
   ];
 
@@ -207,7 +221,12 @@ const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
             label="Customer"
             help="Leave empty for Cash Sale"
           >
-            <Select placeholder="Select customer (optional)" allowClear>
+            <Select
+              loading={loading}
+              disabled={loading}
+              placeholder="Select customer (optional)"
+              allowClear
+            >
               {customers.map((customer) => (
                 <Option key={customer._id} value={customer._id}>
                   {customer.name}
@@ -229,15 +248,18 @@ const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
             placeholder="Select items to sell"
             value={selectedItems}
             onChange={handleItemSelect}
+            loading={loading}
+            disabled={loading}
             className="w-full"
           >
             {inventoryItems.map((item) => (
               <Option
                 key={item._id}
                 value={item._id}
-                disabled={item.stock === 0}
+                disabled={item.quantity === 0}
               >
-                {item.name} - ${item.price.toFixed(2)} ({item.stock} in stock)
+                {item.name} - ${item.price.toFixed(2)} ({item.quantity} in
+                stock)
               </Option>
             ))}
           </Select>
@@ -251,7 +273,7 @@ const RecordSaleForm: React.FC<RecordSaleFormProps> = ({
                 dataSource={saleItems}
                 columns={columns}
                 pagination={false}
-                rowKey={(record) => record.item._id}
+                rowKey={(record) => record.itemId}
                 className="mb-4"
               />
             </div>

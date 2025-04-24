@@ -11,6 +11,7 @@ import { Toaster } from "sonner";
 import InventoryPage from "./pages/InventoryPage";
 import { CustomerPage } from "./pages/CustomerPage";
 import SalesModule from "./components/SalesModule";
+import ReportsPage from "./pages/ReportsPage";
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function AppRoute() {
           <Route path="inventory" element={<InventoryPage />} />
         </Route>
         <Route path="/sales" element={<SalesModule />} />
+        <Route path="/reports" element={<ReportsPage />} />
       </Route>
     </Routes>
   );
