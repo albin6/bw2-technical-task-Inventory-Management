@@ -12,6 +12,7 @@ import InventoryPage from "./pages/InventoryPage";
 import { CustomerPage } from "./pages/CustomerPage";
 import SalesModule from "./components/SalesModule";
 import ReportsPage from "./pages/ReportsPage";
+import SalesReportExport from "./components/SalesReportExport";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function AppRoute() {
         </Route>
         <Route path="/sales" element={<SalesModule />} />
         <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/exports" element={<SalesReportExport />} />
       </Route>
     </Routes>
   );
