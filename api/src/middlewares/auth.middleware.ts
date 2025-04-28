@@ -2,7 +2,13 @@ import { Messages } from "../constants/messages";
 import { StatusCode } from "../constants/status-codes";
 import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken } from "../utils/jwt";
-import { CustomRequest } from "../types/auth.type";
+
+export interface CustomRequest extends Request {
+  user: {
+    id: string;
+    email: string;
+  };
+}
 
 export const verifyAuth = (req: Request, res: Response, next: NextFunction) => {
   try {
