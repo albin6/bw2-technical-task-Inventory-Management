@@ -231,7 +231,7 @@ const SalesReportExport: React.FC<SalesReportExportProps> = ({
   const handleEmailSend = async () => {
     try {
       await emailForm.validateFields();
-      const { email, message: emailMessage } = emailForm.getFieldsValue();
+      const { email, message: _emailMessage } = emailForm.getFieldsValue();
 
       setLoading({ ...loading, email: true });
 

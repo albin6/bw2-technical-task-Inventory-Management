@@ -95,14 +95,14 @@ export const EditItemForm: React.FC<EditItemFormProps> = ({
             { type: "number", min: 0, message: "Price must be at least 0" },
           ]}
         >
-          <InputNumber
+          <InputNumber<number>
             min={0}
             step={0.01}
             precision={2}
             formatter={(value) =>
               `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
             }
-            parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
+            parser={(value) => Number(value?.replace(/\$\s?|(,*)/g, "") || 0)}
             className="w-full"
           />
         </Form.Item>
