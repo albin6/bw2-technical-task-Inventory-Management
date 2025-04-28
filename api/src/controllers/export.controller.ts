@@ -211,6 +211,9 @@ export const generateSalesReport = async (req: Request, res: Response) => {
 
     // Add summary row
     const totalAmount = sales.reduce((sum, sale) => sum + sale.totalAmount, 0);
+
+    console.log("sales data =>", sales);
+    console.log("total amount =>", totalAmount);
     sheet.addRow({});
     sheet.addRow({
       customer: "TOTAL",
