@@ -18,11 +18,7 @@ export const generateSalesReport = async (req: Request, res: Response) => {
     return;
   }
 
-  const sales = await Sale.find({
-    date: { $gte: fromDate, $lte: toDate },
-  })
-    .populate("items.item")
-    .populate("customer");
+  const sales = await Sale.find({}).populate("items.item").populate("customer");
 
   // Ensure temp directory exists
   const tempDir = path.join(__dirname, "../temp");
