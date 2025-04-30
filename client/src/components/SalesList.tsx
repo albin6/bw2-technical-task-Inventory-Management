@@ -1,19 +1,13 @@
 import React from "react";
-import { Table, Button, Tag } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { Table, Tag } from "antd";
 import { Sale } from "./SalesModule";
 
 interface SalesListProps {
   sales: Sale[];
-  onViewDetails: (saleId: string) => void;
   loading: boolean;
 }
 
-const SalesList: React.FC<SalesListProps> = ({
-  sales,
-  onViewDetails,
-  loading,
-}) => {
+const SalesList: React.FC<SalesListProps> = ({ sales, loading }) => {
   const columns = [
     {
       title: "Date",
@@ -55,19 +49,19 @@ const SalesList: React.FC<SalesListProps> = ({
       dataIndex: "totalAmount",
       render: (totalAmount: number) => `$${totalAmount?.toFixed(2) || "0.00"}`,
     },
-    {
-      title: "Action",
-      key: "action",
-      render: (_: any, record: Sale) => (
-        <Button
-          icon={<EyeOutlined />}
-          onClick={() => record._id && onViewDetails(record._id)}
-          type="primary"
-        >
-          View Details
-        </Button>
-      ),
-    },
+    // {
+    //   title: "Action",
+    //   key: "action",
+    //   render: (_: any, record: Sale) => (
+    //     <Button
+    //       icon={<EyeOutlined />}
+    //       onClick={() => record._id && onViewDetails(record._id)}
+    //       type="primary"
+    //     >
+    //       View Details
+    //     </Button>
+    //   ),
+    // },
   ];
 
   return (

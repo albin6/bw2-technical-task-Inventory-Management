@@ -105,23 +105,23 @@ const SalesModule: React.FC = () => {
     }
   };
 
-  const handleViewDetails = async (saleId: string) => {
-    try {
-      // You need to implement this API function to get a single sale
-      // const response = await getSaleById(saleId);
-      // setSelectedSale(response.sale);
+  // const handleViewDetails = async (saleId: string) => {
+  //   try {
+  //     // You need to implement this API function to get a single sale
+  //     // const response = await getSaleById(saleId);
+  //     // setSelectedSale(response.sale);
 
-      // For now, find the sale in the already loaded sales
-      const sale = sales.find((s) => s._id === saleId);
-      if (sale) {
-        setSelectedSale(sale);
-        setIsDetailsVisible(true);
-      }
-    } catch (error) {
-      console.error("Error fetching sale details:", error);
-      message.error("Failed to load sale details");
-    }
-  };
+  //     // For now, find the sale in the already loaded sales
+  //     const sale = sales.find((s) => s._id === saleId);
+  //     if (sale) {
+  //       setSelectedSale(sale);
+  //       setIsDetailsVisible(true);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching sale details:", error);
+  //     message.error("Failed to load sale details");
+  //   }
+  // };
 
   const handleCloseDetails = () => {
     setIsDetailsVisible(false);
@@ -146,11 +146,7 @@ const SalesModule: React.FC = () => {
               />
             </TabPane>
             <TabPane tab="Sales List" key="2">
-              <SalesList
-                sales={sales}
-                onViewDetails={handleViewDetails}
-                loading={loading}
-              />
+              <SalesList sales={sales} loading={loading} />
             </TabPane>
           </Tabs>
 
